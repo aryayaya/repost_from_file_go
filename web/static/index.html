@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP Replay Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- 引入 Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body>
+    <!-- 左侧简化侧边栏：日志面板 -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2><i data-feather="server"></i> System Logs</h2>
+        </div>
+        
+        <!-- 极简的日志状态挂件 -->
+        <div class="log-widget">
+            <div class="log-info">
+                <i data-feather="file-text" class="log-icon"></i>
+                <div class="log-text">
+                    <span class="log-title">history.json</span>
+                    <span class="log-size" id="logSizeDisplay">Loading...</span>
+                </div>
+            </div>
+            <!-- 清空按钮 -->
+            <button id="clearLogBtn" class="btn btn-danger-outline btn-sm">
+                <i data-feather="trash-2"></i> 清理日志
+            </button>
+        </div>
+        
+        <div class="sidebar-footer-hint">
+            <p>Error records are persistently saved to history.json. You should review them manually when necessary.</p>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <header class="top-bar">
+            <div>
+                <h1>
+                    <i data-feather="send"></i> Request Replay
+                    <!-- 任务总数指示器 -->
+                    <span id="taskCountBadge" class="count-badge">0</span>
+                </h1>
+                <p class="subtitle">Select a task card below to execute the HTTP request inline.</p>
+            </div>
+            
+            <div class="actions">
+                <button id="replayAllBtn" class="btn btn-secondary">
+                    <i data-feather="layers"></i> Replay All
+                </button>
+                <button id="removeAllBtn" class="btn btn-secondary text-danger" title="Remove all cards from view (Local only)">
+                    <i data-feather="x-square"></i> Clear View
+                </button>
+                
+                <!-- 上传反馈计数显示区域（初始隐藏） -->
+                <div id="uploadFeedback" class="upload-feedback" style="display: none;">
+                    <i data-feather="loader" class="spin"></i>
+                    <span id="uploadProgressText">0/0</span>
+                </div>
+                
+                <!-- multiple 支持多选上传 -->
+                <label for="fileUploadInput" class="btn btn-primary upload-btn" id="uploadLabelBtn">
+                    <i data-feather="plus"></i> Upload Files
+                </label>
+                <input type="file" id="fileUploadInput" accept=".txt" multiple style="display: none;">
+            </div>
+        </header>
+
+        <!-- 全量重放进度提示条（初始隐藏） -->
+        <div id="replayAllFeedback" class="batch-feedback-banner" style="display: none;">
+            <div class="banner-content">
+                <i data-feather="loader" class="spin" id="batchReplaySpinner"></i>
+                <i data-feather="check-circle" class="text-success" id="batchReplayDoneIcon" style="display: none;"></i>
+                <span id="batchReplayText">Replaying... 0/0 files processed.</span>
+            </div>
+        </div>
+
+        <!-- 卡片网格 -->
+        <div class="grid-container" id="tasksContainer">
+            <!-- 任务卡片将通过 JS 渲染在这里 -->
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+    <script>
+        // 初始化图标
+        feather.replace();
+    </script>
+</body>
+</html>

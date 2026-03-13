@@ -1,0 +1,14 @@
+# 个人文件与隐私忽略
+tasks/
+history.json
+*.txt
+post.txt
+post_new.txt
+
+# 二进制文件
+*.exe
+repost_from_file
+
+# Go 依赖与临时文件
+/vendor/
+go.sum
