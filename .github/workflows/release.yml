@@ -68,29 +68,20 @@ jobs:
       - name: Prepare Artifact
         id: prepare_artifact
         run: |
-          ARCHIVE_NAME="repost_from_file_${{ steps.vars.outputs.tag }}_${{ matrix.os_name }}_${{ matrix.arch }}"
-          
-          # Copy binary and metadata into temporary folder
-          mkdir $ARCHIVE_NAME
-          
+          # 针对不同平台带上后缀，防止文件重名被覆盖
           if [ "${{ matrix.os }}" = "windows" ]; then
-            cp repost_from_file.exe $ARCHIVE_NAME/
+            FINAL_NAME="repost_from_file_${{ matrix.os_name }}_${{ matrix.arch }}.exe"
+            mv repost_from_file.exe $FINAL_NAME
           else
-            cp repost_from_file $ARCHIVE_NAME/
+            FINAL_NAME="repost_from_file_${{ matrix.os_name }}_${{ matrix.arch }}"
+            mv repost_from_file $FINAL_NAME
           fi
-          cp README.md $ARCHIVE_NAME/
           
-          # Compress based on platform
-          if [ "${{ matrix.os }}" = "windows" ]; then
-            zip -r ${ARCHIVE_NAME}.zip $ARCHIVE_NAME
-            echo "archive=${ARCHIVE_NAME}.zip" >> $GITHUB_OUTPUT
-          else
-            tar -czvf ${ARCHIVE_NAME}.tar.gz $ARCHIVE_NAME
-            echo "archive=${ARCHIVE_NAME}.tar.gz" >> $GITHUB_OUTPUT
-          fi
+          echo "file=$FINAL_NAME" >> $GITHUB_OUTPUT
 
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: ${{ steps.prepare_artifact.outputs.archive }}
+          files: ${{ steps.prepare_artifact.outputs.file }}
+
