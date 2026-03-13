@@ -83,9 +83,16 @@ jobs:
           
           echo "file=$FINAL_NAME" >> $GITHUB_OUTPUT
 
+      - name: Upload Artifact to Action
+        uses: actions/upload-artifact@v4
+        with:
+          name: repost_from_file_${{ matrix.os_name }}_${{ matrix.arch }}
+          path: ${{ steps.prepare_artifact.outputs.file }}
+
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         with:
           files: ${{ steps.prepare_artifact.outputs.file }}
+          generate_release_notes: true
 
