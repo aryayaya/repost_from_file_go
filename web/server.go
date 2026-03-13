@@ -209,11 +209,16 @@ func (s *Server) handleReplayAll(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(txtFiles) == 0 {
-		sendJSON(w, http.StatusOK, map[string]int{"success": 0, "failed": 0})
+		sendJSON(w, http.StatusOK, map[string]interface{}{
+			"success": 0, 
+			"failed": 0,
+			"results": []replayer.Result{},
+		})
 		return
 	}
 
 	var successCount, failCount int
+	var results []replayer.Result
 	var mu sync.Mutex
 	var wg sync.WaitGroup
 
@@ -250,6 +255,7 @@ func (s *Server) handleReplayAll(w http.ResponseWriter, r *http.Request) {
 				result := replayer.Replay(filename, req, 15*time.Second)
 				
 				mu.Lock()
+				results = append(results, result)
 				if result.Success {
 					successCount++
 				} else {
@@ -267,9 +273,10 @@ func (s *Server) handleReplayAll(w http.ResponseWriter, r *http.Request) {
 	}
 	wg.Wait()
 
-	sendJSON(w, http.StatusOK, map[string]int{
+	sendJSON(w, http.StatusOK, map[string]interface{}{
 		"success": successCount,
 		"failed":  failCount,
+		"results": results,
 	})
 }
 

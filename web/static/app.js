@@ -138,6 +138,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 const total = data.success + data.failed;
                 batchReplayText.textContent = `Complete: ${data.success}/${total} success, ${data.failed} failed.`;
                 
+                // 遍历后端返回的每一个文件的详细结果并更新 DOM 卡片
+                if (data.results && Array.isArray(data.results)) {
+                    data.results.forEach(result => {
+                        // 通过 data-filename 寻找对应的展示卡片
+                        const card = tasksContainer.querySelector(`.task-card[data-filename="${CSS.escape(result.Filename)}"]`);
+                        if (card) {
+                            const statusDiv = card.querySelector('.status-indicator');
+                            const snippetDiv = card.querySelector('.error-snippet-container');
+                            
+                            if (statusDiv) {
+                                statusDiv.innerHTML = `<span>${result.StatusCode}</span>`;
+                                if (result.Success) {
+                                    statusDiv.className = 'status-indicator success';
+                                    if (snippetDiv) {
+                                        snippetDiv.style.display = 'none';
+                                        snippetDiv.innerHTML = '';
+                                    }
+                                } else {
+                                    statusDiv.className = 'status-indicator error';
+                                    if (snippetDiv) {
+                                        snippetDiv.style.display = 'block';
+                                        snippetDiv.className = 'error-snippet';
+                                        const errText = result.ResponseText || result.ErrMsg || 'Unknown Error';
+                                        snippetDiv.textContent = errText;
+                                        snippetDiv.title = errText;
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                
                 if (data.failed > 0) {
                     batchReplayFeedback.classList.add('warning');
                     loadLogSize();
