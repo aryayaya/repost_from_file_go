@@ -88,11 +88,27 @@ jobs:
           name: repost_from_file_${{ matrix.os_name }}_${{ matrix.arch }}
           path: ${{ steps.prepare_artifact.outputs.file }}
 
+  release:
+    name: Upload Release Assets
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: output
+          merge-multiple: true
+
+      - name: Display downloaded files
+        run: ls -R output
+
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         with:
           tag_name: ${{ github.event.inputs.tag_name || github.ref_name }}
-          files: ${{ steps.prepare_artifact.outputs.file }}
+          files: output/*
           generate_release_notes: true
 
